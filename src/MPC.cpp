@@ -6,7 +6,7 @@
 using CppAD::AD;
 
 // TODO: Set the timestep length and duration
-size_t N = 20;
+size_t N = 15;
 double dt = 0.1;
 
 // This value assumes the model presented in the classroom is used.
@@ -21,7 +21,7 @@ double dt = 0.1;
 // This is the length from front to CoG that has a similar radius.
 const double Lf = 2.67;
 // Reference velocity is set to 50 mph
-const double ref_v = 50 * 0.447;//converting mph to m/s
+const double ref_v = 70 * 0.44704;//converting mph to m/s
 
 size_t x_start = 0;
 size_t y_start = x_start + N;
@@ -54,18 +54,18 @@ public:
         // To reuduce cte, epsi and to maintain the velocity at reference velocity
         for(int t=0; t<N; t++){
             fg[0] += pow(vars[cte_start + t], 2) + pow(vars[epsi_start + t], 2)
-                    + 0.05 * pow((vars[v_start + t] - ref_v), 2);
+                    + pow((vars[v_start + t] - ref_v), 2);
 
         }
         // To get smooth steer and acceleration
         for(int t=0; t<N-2; t++){
-            fg[0] += pow((vars[delta_start + t + 1] - vars[delta_start + t]) * 5, 2);
+            fg[0] += 10 * pow((vars[delta_start + t + 1] - vars[delta_start + t]), 2);
             fg[0] += pow((vars[a_start + t + 1] - vars[a_start + t]), 2);
 
         }
         // To eliminate higher values of steering angle and acceleration
         for(int t=0; t<N-1; t++){
-            fg[0] += 100 * pow(vars[delta_start + t], 2) + pow(vars[a_start + t], 2);
+            fg[0] += 1000 * pow(vars[delta_start + t], 2) + pow(vars[a_start + t], 2);
         }
         //
         // Setup Constraints

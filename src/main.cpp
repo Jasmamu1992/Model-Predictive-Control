@@ -125,14 +125,13 @@ int main() {
 
           //Taking into accout the latencty
           double dt = 0.1;//actuator delay is 100ms or 0.1s
-          v = v * 0.447;//converting mph to m/s
+          v = v * 0.44704;//converting mph to m/s
           px = px + v * cos(delta) * dt;
           py = py + v * sin(delta) * dt;
           psi = psi + v * delta * dt / 2.67;
-          v = v + a * dt;
-          epsi = epsi + v * delta * dt / 2.67;
           cte = cte + v * sin(epsi) * dt;
-
+          epsi = epsi + v * delta * dt / 2.67;
+          v = v + a * dt;
 
           Eigen::VectorXd state(6);
           state << px, py, psi, v, cte, epsi;
