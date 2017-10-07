@@ -17,8 +17,6 @@ constexpr double pi() { return M_PI; }
 double deg2rad(double x) { return x * pi() / 180; }
 double rad2deg(double x) { return x * 180 / pi(); }
 
-double previous_epsi = 0;
-
 // Checks if the SocketIO event has JSON data.
 // If there is data the JSON object in string format will be returned,
 // else the empty string "" will be returned.
@@ -122,19 +120,18 @@ int main() {
           px = 0;
           py = 0;
           psi = 0;
-          double cte = polyeval(coeffs, 0);
-          double epsi = - atan(coeffs[1]);
+          double cte = polyeval(coeffs, px) - py;
+          double epsi = psi - atan(coeffs[1]);
 
           //Taking into accout the latencty
           double dt = 0.1;//actuator delay is 100ms or 0.1s
           v = v * 0.447;//converting mph to m/s
-          px = v * dt;
-          py = 0;
-          psi = v * delta * dt / 2.67;
+          px = px + v * cos(delta) * dt;
+          py = py + v * sin(delta) * dt;
+          psi = psi + v * delta * dt / 2.67;
           v = v + a * dt;
-          cte = cte + v * sin(previous_epsi) * dt;
           epsi = epsi + v * delta * dt / 2.67;
-          previous_epsi = epsi;
+          cte = cte + v * sin(epsi) * dt;
 
 
           Eigen::VectorXd state(6);
