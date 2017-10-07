@@ -30,8 +30,8 @@ where,
        
        
 ## Timestep Length and Elapsed Duration (N & dt)
-I have chosen Timestep length N as 20 and Elapsed Duration dt as 0.2 sec
-with the above values the total prediction time T will be 4 sec. At a speed of reference velocity 50 mph, the vehicle will cover almost 90 meters, which is a substantial amount. Anything more than that should be waste in computational time
+I have chosen Timestep length N as 20 and Elapsed Duration dt as 0.1 sec
+with the above values the total prediction time T will be 2 sec. At a speed of reference velocity 50 mph, the vehicle will cover almost 45 meters, which is a substantial amount. Anything more than that should be waste in computational time
 
 I have tried with different value of Timestep lengths like 10 and 15, but the vehicle performance for much smoother and better when I chose higher number like 20. I then tuned dt accordingly
 
@@ -39,11 +39,11 @@ I have tried with different value of Timestep lengths like 10 and 15, but the ve
 I changed the waypoints to the vehicle point of reference
 ```c++
 for(unsigned int i = 0; i < ptsx.size(); i++){
-              double x = ptsx[i] - px;
-              double y = ptsy[i] - py;
-              pts_x(i) = x * cos(-psi) - y * sin(-psi);
-              pts_y(i) = y * cos(-psi) + x * sin(-psi);
-          }
+  double x = ptsx[i] - px;
+  double y = ptsy[i] - py;
+  pts_x(i) = x * cos(-psi) - y * sin(-psi);
+  pts_y(i) = y * cos(-psi) + x * sin(-psi);
+}
 ```
 This conversion simplifies the equations to calculate elements of intial state of car like cte, epsi etc,.
 For example with the above transformation px, py and psi will become zero, since the waypoints are transformed to the vehicle point of reference. The velocity will be the velocity of the car. The equations for cte and epsi will be simplified as follows
@@ -51,9 +51,8 @@ For example with the above transformation px, py and psi will become zero, since
 px = 0;
 py = 0;
 psi = 0;
-Eigen::VectorXd coeffs = polyfit(pts_x, pts_y, order);
-double cte = polyeval(coeffs, 0);
-double epsi = - atan(coeffs[1]);
+double cte = polyeval(coeffs, px) - py;
+double epsi = psi - atan(coeffs[1]);
 ```
 
 ## Model Predictive Control with Latency
@@ -62,11 +61,10 @@ Real vehicle actuator latency is taken into consideration. In this project the l
 //Taking into accout the latencty
 double dt = 0.1;//actuator delay is 100ms or 0.1s
 v = v * 0.447;//converting mph to m/s
-px = v * dt;
-py = 0;
-psi = v * delta * dt / 2.67;
+px = px + v * cos(delta) * dt;
+py = py + v * sin(delta) * dt;
+psi = psi + v * delta * dt / 2.67;
 v = v + a * dt;
-cte = cte + v * sin(previous_epsi) * dt;
 epsi = epsi + v * delta * dt / 2.67;
-previous_epsi = epsi;
+cte = cte + v * sin(epsi) * dt;
 ```
