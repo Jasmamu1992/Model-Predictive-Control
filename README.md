@@ -30,10 +30,10 @@ where,
        
        
 ## Timestep Length and Elapsed Duration (N & dt)
-I have chosen Timestep length N as 20 and Elapsed Duration dt as 0.1 sec
-with the above values the total prediction time T will be 2 sec. At a speed of reference velocity 50 mph, the vehicle will cover almost 45 meters, which is a substantial amount. Anything more than that should be waste in computational time
+I have chosen Timestep length N as 15 and Elapsed Duration dt as 0.1 sec
+with the above values the total prediction time T will be 1.5 sec. At a speed of reference velocity 50 mph, the vehicle will cover almost 45 meters, which is a substantial amount. Anything more than that should be waste in computational time
 
-I have tried with different value of Timestep lengths like 10 and 15, but the vehicle performance for much smoother and better when I chose higher number like 20. I then tuned dt accordingly
+I have tried with different value of Timestep lengths like 10 and 15, but the vehicle performance for much smoother and better when I chose higher number like 15. I then tuned dt accordingly
 
 ## Polynomial fitting and mpc processing
 I changed the waypoints to the vehicle point of reference
@@ -60,11 +60,11 @@ Real vehicle actuator latency is taken into consideration. In this project the l
 ```c++
 //Taking into accout the latencty
 double dt = 0.1;//actuator delay is 100ms or 0.1s
-v = v * 0.447;//converting mph to m/s
+v = v * 0.44704;//converting mph to m/s
 px = px + v * cos(delta) * dt;
 py = py + v * sin(delta) * dt;
 psi = psi + v * delta * dt / 2.67;
-v = v + a * dt;
-epsi = epsi + v * delta * dt / 2.67;
 cte = cte + v * sin(epsi) * dt;
+epsi = epsi + v * delta * dt / 2.67;
+v = v + a * dt;
 ```
